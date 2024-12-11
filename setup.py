@@ -13,8 +13,8 @@ class MyVenv:
     repo = None
     requirements = []
     scripts = []
-    wheels = []
     venv_path = None
+    wheels = []
     
     def create_paths(self):
         with open(self.venv_path, "w") as f:
@@ -43,23 +43,36 @@ class MyVenv:
     def delete(self):
         deleted = False
         for path in ["bin", "include", "Include", "lib", "lib64", "Lib", "Scripts", "pyvenv.cfg"]:
-            path = self.this_path / path
-            if path.exists():
-                if path.is_dir():
-                    for root, paths, files in path.walk(top_down=False):
-                        for name in files:
-                            (root / name).unlink()
-                        for name in paths:
-                            (root / name).rmdir()
-                    path.rmdir()
-                else:
-                    path.unlink()
-                deleted = True
-            elif path.is_symlink():
-                path.unlink()
-                deleted = True
+            deleted |= self.delete_path(path)
         if deleted:
             print("Deleted existing virtual environment")
+    
+    def delete_dir(self, path):
+        for root, paths, files in path.walk(top_down=False):
+            for name in files:
+                (root / name).unlink()s
+            for name in paths:
+                (root / name).rmdir()
+        path.rmdir()
+        return True
+    
+    def delete_file(self, path):
+        path.unlink()
+        return True
+    
+    def delete_path(self, path):
+        path = self.this_path / path
+        if not path.exists():
+            return self.delete_symlink(path)
+        if not path.is_dir():
+            return self.delete_file(path)
+        return self.delete_dir(path)
+    
+    def delete_symlink(self, path):
+        if not path.is_symlink():
+            return False
+        path.unlink()
+        return True
     
     def find_packages(self):
         packages_path = self.parent_path / "packages"
@@ -91,13 +104,6 @@ class MyVenv:
         elif "Windows" in platform.platform():
             self.script_files = [self.this_path / "Scripts" / x for x in ["activate", "activate.bat"]]
     
-    def find_wheels(self):
-        for path in self.paths:
-            for x in path.iterdir():
-                if x.is_file() and x.suffix == ".whl":
-                    print("Found", str(x))
-                    self.wheels.append(x)
-    
     def find_venv(self):
         if "Linux" in platform.platform():
             version = platform.python_version()
@@ -106,6 +112,13 @@ class MyVenv:
         elif "Windows" in platform.platform():
             packages_path = self.this_path / "Lib" / "site-packages"
         self.venv_path = packages_path / ".pth"
+    
+    def find_wheels(self):
+        for path in self.paths:
+            for x in path.iterdir():
+                if x.is_file() and x.suffix == ".whl":
+                    print("Found", str(x))
+                    self.wheels.append(x)
     
     def main(self):
         self.delete()
