@@ -35,6 +35,10 @@ class MyVenv:
             print("Installing", requirements_txt)
             subprocess.call([self.pip, "install", "-r", requirements_txt])
     
+    def create_venv(self):
+        print("Setting up new virtual environment")
+        venv.create(self.this_path, with_pip=True)
+    
     def create_wheels(self):
         for wheel in self.wheels:
             print("Installing {}".format(wheel))
@@ -50,7 +54,7 @@ class MyVenv:
     def delete_dir(self, path):
         for root, paths, files in path.walk(top_down=False):
             for name in files:
-                (root / name).unlink()s
+                (root / name).unlink()
             for name in paths:
                 (root / name).rmdir()
         path.rmdir()
@@ -122,12 +126,11 @@ class MyVenv:
     
     def main(self):
         self.delete()
-        print("Setting up new virtual environment")
-        venv.create(self.this_path, with_pip=True)
+        self.create_venv()
         self.find_repo()
         if self.repo is not None:
-            this.find_script_files()
-            this.create_prefix()
+            self.find_script_files()
+            self.create_prefix()
         self.find_packages()
         self.find_venv()
         self.create_paths()
