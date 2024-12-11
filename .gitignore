@@ -1,4 +1,8 @@
+/bin
+/include
 /Include
+/lib
+/lib64
 /Lib
 /Scripts
 pyvenv.cfg
