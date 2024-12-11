@@ -3,6 +3,8 @@ import argparse
 import platform
 import subprocess
 import venv
+from git import Repo
+from git.exc import InvalidGitRepositoryError
 from pathlib import Path
 
 class MyVenv:
@@ -10,7 +12,7 @@ class MyVenv:
     parent_path = this_path.parent
     paths = [parent_path]
     pip = None
-    repo = None
+    prefix = None
     requirements = []
     scripts = []
     venv_path = None
@@ -22,11 +24,11 @@ class MyVenv:
                 print("Adding", str(path), "to PYTHONPATH")
                 f.write(str(path)+"\n")
     
-    def create_prefix(self, repo):
+    def create_prefix(self):
         for file in self.script_files:
             with open(file, "r") as f:
                 lines = f.read()
-                lines = lines.replace("(myvenv)", "({}-myvenv)".format(this.repo))
+                lines = lines.replace("(myvenv)", "({}-myvenv)".format(self.prefix))
             with open(file, "w") as f:
                 f.write(lines)
     
@@ -91,9 +93,11 @@ class MyVenv:
         elif "Windows" in platform.platform():
             self.pip = self.this_path / "Scripts" / "pip.exe"
     
-    def find_repo(self):
-        return
-        # todo: attempt to get a name for the parent repo using "git remote show origin"
+    def find_prefix(self):
+        try:
+            repo = Repo(self.parent_path)
+        except InvalidGitRepositoryError:
+            self.prefix = str(self.parent_path.parts[-1])
     
     def find_requirements(self):
         for path in self.paths:
@@ -127,8 +131,8 @@ class MyVenv:
     def main(self):
         self.delete()
         self.create_venv()
-        self.find_repo()
-        if self.repo is not None:
+        self.find_prefix()
+        if self.prefix is not None:
             self.find_script_files()
             self.create_prefix()
         self.find_packages()
