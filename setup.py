@@ -69,11 +69,10 @@ class MyVenv:
             self.paths += [x for x in packages_path.iterdir() if x.is_dir()]
     
     def find_pip(self):
-        if self.requirements or self.wheels:
-            if "Linux" in platform.platform():
-                self.pip = self.this_path / "bin" / "pip"
-            elif "Windows" in platform.platform():
-                self.pip = self.this_path / "Scripts" / "pip.exe"
+        if "Linux" in platform.platform():
+            self.pip = self.this_path / "bin" / "pip"
+        elif "Windows" in platform.platform():
+            self.pip = self.this_path / "Scripts" / "pip.exe"
     
     def find_repo(self):
         return
@@ -120,8 +119,10 @@ class MyVenv:
         self.create_paths()
         self.find_requirements()
         self.find_wheels()
-        self.create_requirements()
-        self.create_wheels()
+        if self.requirements or self.wheels:
+            self.find_pip()
+            self.create_requirements()
+            self.create_wheels()
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
