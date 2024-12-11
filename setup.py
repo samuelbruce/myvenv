@@ -100,7 +100,8 @@ class MyVenv:
     
     def find_venv(self):
         if "Linux" in platform.platform():
-            version = "python" + platform.version()[:platform.version().find(".",2)]
+            version = platform.python_version()
+            version = "python" + version[:version.find(".", 2)]
             packages_path = self.this_path / "lib" / version / "site-packages"
         elif "Windows" in platform.platform():
             packages_path = self.this_path / "Lib" / "site-packages"
