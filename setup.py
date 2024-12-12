@@ -97,7 +97,6 @@ class MyVenv:
         try:
             repo = Repo(self.parent_path)
         except InvalidGitRepositoryError:
-            self.prefix = str(self.parent_path.parts[-1])
             return
         try:
             self.prefix = repo.remotes.origin.url.split('.git')[0].split('/')[-1]
