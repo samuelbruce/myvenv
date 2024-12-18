@@ -3,8 +3,6 @@ import argparse
 import platform
 import subprocess
 import venv
-from git import Repo
-from git.exc import InvalidGitRepositoryError
 from pathlib import Path
 
 class MyVenv:
@@ -94,16 +92,12 @@ class MyVenv:
             self.pip = self.this_path / "Scripts" / "pip.exe"
     
     def find_prefix(self):
-        try:
-            repo = Repo(self.parent_path)
-        except InvalidGitRepositoryError:
+        if not (self.parent_path / ".git").is_dir():
             return
-        try:
-            self.prefix = repo.remotes.origin.url.split('.git')[0].split('/')[-1]
-            return
-        except AttributeError:
-            self.prefix = Path(repo.working_tree_dir).parts[-1]
-            return
+        if "origin" not in subprocess.check_output(["git", "remote", "show"], cwd=self.parent_path).decode().splitlines():
+            self.prefix = self.parent_path.parts[-1]
+        else:
+            self.prefix = subprocess.check_output(["git", "remote", "show", "origin"], cwd=self.parent_path).decode().splitlines()[1].split("/")[-1]
     
     def find_requirements(self):
         for path in self.paths:
