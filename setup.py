@@ -44,13 +44,6 @@ class MyVenv:
             print("Installing {}".format(wheel))
             subprocess.call([self.pip, "install", wheel])
     
-    def delete(self):
-        deleted = False
-        for path in ["bin", "include", "Include", "lib", "lib64", "Lib", "Scripts", "pyvenv.cfg"]:
-            deleted |= self.delete_path(path)
-        if deleted:
-            print("Deleted existing virtual environment")
-    
     def delete_dir(self, path):
         for root, paths, files in path.walk(top_down=False):
             for name in files:
@@ -77,6 +70,13 @@ class MyVenv:
             return False
         path.unlink()
         return True
+    
+    def delete_venv(self):
+        deleted = False
+        for path in ["bin", "include", "Include", "lib", "lib64", "Lib", "Scripts", "pyvenv.cfg"]:
+            deleted |= self.delete_path(path)
+        if deleted:
+            print("Deleted existing virtual environment")
     
     def find_packages(self):
         packages_path = self.parent_path / "packages"
@@ -129,7 +129,7 @@ class MyVenv:
                     self.wheels.append(x)
     
     def main(self):
-        self.delete()
+        self.delete_venv()
         self.create_venv()
         self.find_prefix()
         if self.prefix is not None:
@@ -150,6 +150,6 @@ if __name__ == "__main__":
     parser.add_argument("-d", action="store_true", help="Delete")
     args = vars(parser.parse_args())
     if args["d"]:
-        MyVenv().delete()
+        MyVenv().delete_venv()
     else:
         MyVenv().main()
