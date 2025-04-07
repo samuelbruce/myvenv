@@ -119,7 +119,7 @@ class MyVenv:
             packages_path = self.this_path / "lib" / version / "site-packages"
         elif "Windows" in platform.platform():
             packages_path = self.this_path / "Lib" / "site-packages"
-        self.venv_path = packages_path / ".pth"
+        self.venv_path = packages_path / "myvenv.pth"
     
     def find_wheels(self):
         for path in self.paths:
