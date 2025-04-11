@@ -97,7 +97,7 @@ class MyVenv:
         if "origin" not in subprocess.check_output(["git", "remote", "show"], cwd=self.parent_path).decode().splitlines():
             self.prefix = self.parent_path.parts[-1]
         else:
-            self.prefix = subprocess.check_output(["git", "remote", "show", "origin"], cwd=self.parent_path).decode().splitlines()[1].split("/")[-1]
+            self.prefix = subprocess.check_output(["git", "remote", "show", "origin"], cwd=self.parent_path).decode().splitlines()[1].split("/")[-1].replace(".git", "")
     
     def find_requirements(self):
         for path in self.paths:
